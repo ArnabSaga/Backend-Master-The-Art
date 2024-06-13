@@ -1,0 +1,22 @@
+{
+  "name": "backend-master",
+  "version": "1.0.0",
+  "description": "a backend app",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon src/index.js"
+  },
+  "keywords": [
+    "javascript",
+    "node",
+    "express",
+    "mongodb",
+    "backend"
+  ],
+  "author": "Arnab",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.1.3"
+  }
+}
