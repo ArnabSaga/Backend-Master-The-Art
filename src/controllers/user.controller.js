@@ -4,7 +4,7 @@ import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
-const generateAccessAndRefereshTokens = async(userId) => {
+const generateAccessAndRefereshTokens = async (userId) => {
     try {
         const user = await User.findById(userId);
         const accessToken = user.generateAccessToken();
@@ -13,14 +13,14 @@ const generateAccessAndRefereshTokens = async(userId) => {
         user.refreshToken = refreshToken;
         await user.save({ validateBeforeSave: false })
 
-        return {accessToken, refreshToken}
+        return { accessToken, refreshToken }
 
     } catch (error) {
         throw new ApiError(500, "something went wrong with generating refresh tokens and access tokens");
     }
 }
 
-const registerUser = asyncHandler( async (req, res) => {
+const registerUser = asyncHandler(async (req, res) => {
     // get user details from frontend(postman)
     // validation - not empty
     //check if user already exists: username, email
@@ -89,7 +89,7 @@ const registerUser = asyncHandler( async (req, res) => {
 
 });
 
-const loginUser = asyncHandler( async (req, res) => {
+const loginUser = asyncHandler(async (req, res) => {
     // req.body => data (infomation from input-box)
     // username or email based access the user
     // find the user
@@ -97,23 +97,30 @@ const loginUser = asyncHandler( async (req, res) => {
     // access and refresh token will generate and it will send to the user
     // send cookies - sent a response to the user successfully login
 
-    const {email, username, password} = req.body
+    const { email, username, password } = req.body
 
-    if(!username && !email) {
+    if (!username && !email) {
         throw new ApiError(400, "username or email is required");
     }
 
+    /*
+    Here is an alternative of above code based on logic discussed in video:
+    if (!(username || email)) {
+        throw new ApiError(400, "username or email is required")    
+    }
+    */
+
     const user = await User.findOne({
-        $or: [ {username}, {email} ]
+        $or: [{ username }, { email }]
     })
 
-    if(!user) {
+    if (!user) {
         throw new ApiError(404, "User never exists");
     }
 
     const isPasswordValid = await user.isPasswordCorrect(password);
 
-    if(!isPasswordValid){
+    if (!isPasswordValid) {
         throw new ApiError(401, "Password is wrong");
     }
 
@@ -127,30 +134,30 @@ const loginUser = asyncHandler( async (req, res) => {
     };
 
     return res
-    .status(200)
-    .cookie("accessToken", accessToken, options)
-    .cookie("refreshToken", refreshToken, options)
-    .json(
-        new ApiResponse(
-            200,
-            {
-                user: loggedInUser, accessToken, refreshToken
-            },
-            "User is logged in successfully"
-        )
-    );
+        .status(200)
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", refreshToken, options)
+        .json(
+            new ApiResponse(
+                200,
+                {
+                    user: loggedInUser, accessToken, refreshToken
+                },
+                "User is logged in successfully"
+            )
+        );
 
 });
 
-const logoutUser = asyncHandler( async (req, res) => {
+const logoutUser = asyncHandler(async (req, res) => {
     // clear all cookies
     // clean all refreshToken 
 
     await User.findByIdAndUpdate(
         req.user._id,
         {
-            $set: {
-                refreshToken: undefined
+            $unset: {
+                refreshToken: 1
             }
         },
         {
@@ -164,10 +171,10 @@ const logoutUser = asyncHandler( async (req, res) => {
     };
 
     return res
-    .status(200)
-    .clearCookie("accessToken", options)
-    .clearCookie("refreshToken", options)
-    .json( new ApiResponse(200, {}, "User logged out") );
+        .status(200)
+        .clearCookie("accessToken", options)
+        .clearCookie("refreshToken", options)
+        .json(new ApiResponse(200, {}, "User logged out"));
 
 });
 
