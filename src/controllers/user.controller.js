@@ -316,6 +316,14 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
         { new: true }
     ).select("-password");
 
+    const oldAvatarUrl = user.avatar;
+    user.avatar = avatar.url;
+
+    await user.save();
+    if (oldAvatarUrl) {
+        await deleteOnCloudinary(oldAvatarUrl);
+    }
+
     return res
         .status(200)
         .json(
@@ -325,15 +333,6 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
                 "Avatar image updated successfully"
             )
         );
-
-    const oldAvatarUrl = user.avatar;
-    user.avatar = avatar.url;
-
-    await user.save();
-    if (oldAvatarUrl) {
-        await deleteOnCloudinary(oldAvatarUrl);
-    }
-
 });
 
 const updateUserCoverImage = asyncHandler(async (req, res) => {
@@ -358,6 +357,14 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
         { new: true }
     ).select("-password");
 
+    const oldCoverImageUrl = user.coverImage;
+    user.coverImage = coverImage.url;
+
+    await user.save();
+    if (oldCoverImageUrl) {
+        await deleteOnCloudinary(oldCoverImageUrl);
+    }
+
     return res
         .status(200)
         .json(
@@ -367,14 +374,6 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
                 "Cover image updated successfully"
             )
         );
-
-    const oldCoverImageUrl = user.coverImage;
-    user.coverImage = coverImage.url;
-
-    await user.save();
-    if (oldCoverImageUrl) {
-        await deleteOnCloudinary(oldCoverImageUrl);
-    }
 });
 
 export {
